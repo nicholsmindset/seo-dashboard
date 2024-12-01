@@ -1,0 +1,61 @@
+/* Base styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --text-color: #ffffff;
+  --background-color: #000000;
+  --primary-color: #ffff00;
+  --secondary-color: #00ffff;
+}
+
+/* Screen reader optimizations */
+[data-screen-reader="true"] :focus {
+  outline: 3px solid var(--primary-color, #1976d2) !important;
+  outline-offset: 2px !important;
+}
+
+/* Accessibility focus styles */
+:focus-visible {
+  outline: 3px solid var(--primary-color, #1976d2);
+  outline-offset: 2px;
+}
+
+/* Font size utility classes */
+.text-small {
+  font-size: 14px;
+}
+
+.text-medium {
+  font-size: 16px;
+}
+
+.text-large {
+  font-size: 18px;
+}
+
+.text-xlarge {
+  font-size: 20px;
+}
+
+/* Animation control for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

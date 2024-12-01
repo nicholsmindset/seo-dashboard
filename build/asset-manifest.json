@@ -1,9 +1,21 @@
 {
   "files": {
-    "main.js": "/seo-dashboard/static/js/main.f2d67783.js",
+    "main.css": "/seo-dashboard/static/css/main.2f3e7ee4.css",
+    "main.js": "/seo-dashboard/static/js/main.4271d08d.js",
+    "static/js/133.03824f7e.chunk.js": "/seo-dashboard/static/js/133.03824f7e.chunk.js",
+    "static/js/868.0ada886b.chunk.js": "/seo-dashboard/static/js/868.0ada886b.chunk.js",
+    "static/js/578.a6348c83.chunk.js": "/seo-dashboard/static/js/578.a6348c83.chunk.js",
+    "static/js/994.635ac7f9.chunk.js": "/seo-dashboard/static/js/994.635ac7f9.chunk.js",
+    "static/js/605.415b508f.chunk.js": "/seo-dashboard/static/js/605.415b508f.chunk.js",
+    "static/js/746.467aef9d.chunk.js": "/seo-dashboard/static/js/746.467aef9d.chunk.js",
+    "static/js/236.956e10b2.chunk.js": "/seo-dashboard/static/js/236.956e10b2.chunk.js",
+    "static/js/659.db6d8225.chunk.js": "/seo-dashboard/static/js/659.db6d8225.chunk.js",
+    "static/js/246.a771f732.chunk.js": "/seo-dashboard/static/js/246.a771f732.chunk.js",
+    "static/js/103.b34fc4c1.chunk.js": "/seo-dashboard/static/js/103.b34fc4c1.chunk.js",
     "index.html": "/seo-dashboard/index.html"
   },
   "entrypoints": [
-    "static/js/main.f2d67783.js"
+    "static/css/main.2f3e7ee4.css",
+    "static/js/main.4271d08d.js"
   ]
 }
