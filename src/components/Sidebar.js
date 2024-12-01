@@ -1,86 +1,138 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Box,
+import React, { useState } from 'react';
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemIcon, 
+  ListItemText, 
+  IconButton, 
+  Box, 
+  Tooltip 
 } from '@mui/material';
-import {
+import { 
   Dashboard as DashboardIcon,
   Article as ContentIcon,
-  Assignment as BriefIcon,
-  Search as KeywordsIcon,
-  BarChart as AnalyticsIcon,
-  People as TeamIcon,
-  Description as TemplatesIcon,
-  History as HistoryIcon,
+  Analytics as AnalyticsIcon,
+  Search as KeywordIcon,
+  Group as TeamIcon,
   Settings as SettingsIcon,
+  History as HistoryIcon,
   Notifications as NotificationsIcon,
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
-
-const drawerWidth = 240;
-
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Content', icon: <ContentIcon />, path: '/content' },
-  { text: 'Content Briefs', icon: <BriefIcon />, path: '/briefs' },
-  { text: 'Keywords', icon: <KeywordsIcon />, path: '/keywords' },
-  { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
-  { text: 'Team', icon: <TeamIcon />, path: '/team' },
-  { text: 'Templates', icon: <TemplatesIcon />, path: '/templates' },
-  { text: 'History', icon: <HistoryIcon />, path: '/history' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
-  { text: 'Notifications', icon: <NotificationsIcon />, path: '/notifications' },
-];
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const [open, setOpen] = useState(true);
   const location = useLocation();
+
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+
+  const sidebarWidth = open ? 240 : 73;
+
+  const menuItems = [
+    { 
+      text: 'Dashboard', 
+      icon: <DashboardIcon />, 
+      path: '/' 
+    },
+    { 
+      text: 'Content Briefs', 
+      icon: <ContentIcon />, 
+      path: '/briefs' 
+    },
+    { 
+      text: 'Keywords', 
+      icon: <KeywordIcon />, 
+      path: '/keywords' 
+    },
+    { 
+      text: 'Analytics', 
+      icon: <AnalyticsIcon />, 
+      path: '/analytics' 
+    },
+    { 
+      text: 'Team', 
+      icon: <TeamIcon />, 
+      path: '/team' 
+    },
+    { 
+      text: 'History', 
+      icon: <HistoryIcon />, 
+      path: '/history' 
+    },
+    { 
+      text: 'Notifications', 
+      icon: <NotificationsIcon />, 
+      path: '/notifications' 
+    },
+    { 
+      text: 'Settings', 
+      icon: <SettingsIcon />, 
+      path: '/settings' 
+    }
+  ];
 
   return (
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: sidebarWidth,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width: drawerWidth,
+          width: sidebarWidth,
           boxSizing: 'border-box',
-          bgcolor: '#1E2029',
-          color: '#fff',
-        },
+          transition: 'width 0.3s ease',
+          overflowX: 'hidden'
+        }
       }}
     >
-      <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <Typography variant="h6" sx={{ color: '#fff' }}>
-          SEO Dashboard
-        </Typography>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'flex-end', 
+          p: 1 
+        }}
+      >
+        <IconButton onClick={toggleDrawer}>
+          {open ? <ChevronLeftIcon /> : <MenuIcon />}
+        </IconButton>
       </Box>
+
       <List>
         {menuItems.map((item) => (
-          <ListItem
-            button
-            key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            sx={{
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.1)',
-              },
-              '&.Mui-selected': {
-                bgcolor: 'rgba(255,255,255,0.1)',
-              },
-            }}
+          <Tooltip 
+            key={item.text} 
+            title={!open ? item.text : ''} 
+            placement="right"
           >
-            <ListItemIcon sx={{ color: '#fff' }}>
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
+            <ListItem
+              component={Link}
+              to={item.path}
+              sx={{
+                justifyContent: 'center',
+                px: open ? 2 : 0,
+                backgroundColor: location.pathname === item.path 
+                  ? 'rgba(0, 0, 0, 0.04)' 
+                  : 'transparent'
+              }}
+            >
+              <ListItemIcon 
+                sx={{ 
+                  minWidth: 'auto', 
+                  mr: open ? 2 : 'auto',
+                  justifyContent: 'center'
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              {open && <ListItemText primary={item.text} />}
+            </ListItem>
+          </Tooltip>
         ))}
       </List>
     </Drawer>

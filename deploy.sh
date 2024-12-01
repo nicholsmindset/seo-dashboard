@@ -1,26 +1,45 @@
 #!/bin/bash
 
-# Colors for output
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
+# Exit on any error
+set -e
 
-echo "🚀 Starting deployment process..."
+# Check if there are any uncommitted changes
+if [[ -n $(git status -s) ]]; then
+    echo "Error: There are uncommitted changes. Please commit or stash them first."
+    exit 1
+fi
+
+# Determine version bump type
+VERSION_TYPE=${1:-patch}
 
 # Install dependencies
-echo "${GREEN}Installing dependencies...${NC}"
-npm install --legacy-peer-deps || { echo "${RED}Failed to install dependencies${NC}" ; exit 1; }
+echo "Installing dependencies..."
+npm install
 
 # Run tests
-echo "${GREEN}Running tests...${NC}"
-npm test -- --watchAll=false || { echo "${RED}Tests failed${NC}" ; exit 1; }
+echo "Running tests..."
+npm test
 
-# Build the application
-echo "${GREEN}Building the application...${NC}"
-npm run build || { echo "${RED}Build failed${NC}" ; exit 1; }
+# Build the project
+echo "Building project..."
+npm run build
 
-# Start the production server
-echo "${GREEN}Starting production server...${NC}"
-npm run serve
+# Deploy to GitHub Pages
+echo "Deploying to GitHub Pages..."
+npm run deploy
 
-echo "${GREEN}✅ Deployment completed successfully!${NC}"
+# Update version
+echo "Updating version..."
+if [ "$VERSION_TYPE" = "major" ]; then
+    npm run version:major
+elif [ "$VERSION_TYPE" = "minor" ]; then
+    npm run version:minor
+else
+    npm run version:patch
+fi
+
+# Push changes
+echo "Pushing changes to repository..."
+git push origin main
+
+echo "Deployment completed successfully!"

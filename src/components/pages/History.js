@@ -9,12 +9,9 @@ import {
   ListItemText,
   ListItemIcon,
   ListItemSecondaryAction,
-  IconButton,
   Chip,
-  Divider,
 } from '@mui/material';
 import {
-  Edit as EditIcon,
   Delete as DeleteIcon,
   Article as ArticleIcon,
   Assignment as AssignmentIcon,
@@ -93,15 +90,11 @@ const History = () => {
                   }
                 />
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="restore" sx={{ mr: 1 }}>
-                    <RestoreIcon />
-                  </IconButton>
-                  <IconButton edge="end" aria-label="delete">
-                    <DeleteIcon />
-                  </IconButton>
+                  <RestoreIcon sx={{ mr: 1 }} />
+                  <DeleteIcon />
                 </ListItemSecondaryAction>
               </ListItem>
-              {index < historyData.length - 1 && <Divider />}
+              {index < historyData.length - 1 && <></>}
             </React.Fragment>
           ))}
         </List>

@@ -11,14 +11,12 @@ import {
   Button,
   TextField,
   Chip,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Tab,
   Tabs,
-  Divider,
   List,
   ListItem,
   ListItemText,
@@ -31,17 +29,15 @@ import {
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  Assignment as AssignmentIcon,
-  TrendingUp as TrendingUpIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
   Group as GroupIcon,
   Schedule as ScheduleIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
   FileCopy as FileCopyIcon,
   Psychology as PsychologyIcon,
   Lightbulb as LightbulbIcon,
   AutoAwesome as AutoAwesomeIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 
 const ContentBriefs = () => {
@@ -111,7 +107,7 @@ const ContentBriefs = () => {
       ],
       outline: [
         'Current E-commerce SEO Trends',
-        'Product Page Optimization',
+        'Product Page Optimization Guide',
         'Category Page Best Practices',
         'Internal Linking Strategy',
         'Schema Markup for E-commerce'

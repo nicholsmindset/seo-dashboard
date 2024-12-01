@@ -11,9 +11,7 @@ import {
   Avatar,
   Button,
   TextField,
-  IconButton,
   Chip,
-  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,8 +20,6 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondary,
-  Divider,
   AvatarGroup,
   Tab,
   Tabs,
@@ -31,15 +27,11 @@ import {
 import {
   Add as AddIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
   Mail as MailIcon,
   Assignment as AssignmentIcon,
   Schedule as ScheduleIcon,
   CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon,
   Timeline as TimelineIcon,
-  Group as GroupIcon,
-  Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 const Team = () => {
@@ -288,7 +280,7 @@ const Team = () => {
                     </Button>
                     <Button
                       size="small"
-                      startIcon={<TimelineIcon />}
+                      startIcon={<ScheduleIcon />}
                     >
                       Analytics
                     </Button>

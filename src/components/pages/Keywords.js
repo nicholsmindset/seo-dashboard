@@ -22,33 +22,29 @@ import {
   DialogActions,
   LinearProgress,
   Tooltip,
-  Alert,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  IconButton,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  IconButton,
 } from '@mui/material';
 import {
   Search as SearchIcon,
   TrendingUp as TrendingUpIcon,
   Add as AddIcon,
-  Delete as DeleteIcon,
-  FileUpload as FileUploadIcon,
-  FileDownload as FileDownloadIcon,
   Psychology as PsychologyIcon,
   Lightbulb as LightbulbIcon,
   AutoAwesome as AutoAwesomeIcon,
   Insights as InsightsIcon,
-  Timeline as TimelineIcon,
-  TrendingDown as TrendingDownIcon,
   ImportExport as ImportExportIcon,
   Visibility as VisibilityIcon,
   Edit as EditIcon,
+  Delete as DeleteIcon,
+  TrendingDown as TrendingDownIcon,
 } from '@mui/icons-material';
 
 const Keywords = () => {
@@ -528,6 +524,11 @@ const Keywords = () => {
                           }}
                         >
                           <PsychologyIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton size="small">
+                          <DeleteIcon />
                         </IconButton>
                       </Tooltip>
                     </TableCell>

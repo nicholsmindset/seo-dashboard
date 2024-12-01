@@ -14,8 +14,6 @@ import {
 } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  DateRange as DateRangeIcon,
 } from '@mui/icons-material';
 import { ResponsiveLine } from '@nivo/line';
 
