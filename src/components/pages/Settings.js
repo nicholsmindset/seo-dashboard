@@ -1,377 +1,348 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Container,
+  Card,
+  CardContent,
   Typography,
-  Paper,
+  TextField,
+  Button,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
-  Switch,
-  Divider,
-  Button,
-  TextField,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
-  IconButton,
-  Tooltip,
-  Alert,
-  Snackbar,
+  ListItemSecondaryAction,
+  Tab,
+  Tabs,
+  Paper,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import {
-  Notifications as NotificationsIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Check as CheckIcon,
-  Error as ErrorIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-  AccessibilityNew as AccessibilityIcon,
-  FontDownload as FontSizeIcon,
-  ContrastOutlined as ContrastIcon,
-  RecordVoiceOver as ScreenReaderIcon,
-  Security as SecurityIcon,
-  Language as LanguageIcon,
-  ColorLens as ThemeIcon,
-  DataUsage as DataIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  PlayArrow as TestIcon
 } from '@mui/icons-material';
-
-// Import validation utilities
-import { APIKeyValidators, APIKeyManager, APIKeyError } from '../../utils/apiKeyValidation';
-import { useAppTheme } from '../../contexts/ThemeContext';
+import { useWebhooks } from '../../contexts/WebhookContext';
+import { useUser } from '../../contexts/UserContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
+import { useAPIKey } from '../../contexts/APIKeyContext';
 
-const Settings = () => {
-  const { mode, toggleThemeMode } = useAppTheme();
-  const { 
-    fontSize, 
-    highContrast, 
-    screenReaderMode, 
-    updateAccessibility 
-  } = useAccessibility();
+function TabPanel({ children, value, index, ...other }) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`settings-tabpanel-${index}`}
+      aria-labelledby={`settings-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    darkMode: mode === 'dark',
-    autoSave: true,
-    dataSharing: false,
-    language: 'English',
+export default function Settings() {
+  const [activeTab, setActiveTab] = useState(0);
+  const [webhookDialog, setWebhookDialog] = useState(false);
+  const [editingWebhook, setEditingWebhook] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const { webhooks, addWebhook, updateWebhook, deleteWebhook, testWebhook } = useWebhooks();
+  const { preferences, updatePreferences } = useUser();
+  const { accessibilitySettings, toggleHighContrast, toggleLargeText, toggleScreenReaderOptimized } = useAccessibility();
+  const { apiKeys, setAPIKey, removeAPIKey } = useAPIKey();
+
+  const [webhookForm, setWebhookForm] = useState({
+    name: '',
+    url: '',
+    method: 'POST',
+    headers: '{}',
+    body: '{}'
   });
 
-  const [apiKeys, setApiKeys] = useState({
-    openai: APIKeyManager.getAPIKey('openai'),
-    perplexity: APIKeyManager.getAPIKey('perplexity'),
-    claude: APIKeyManager.getAPIKey('claude'),
-    jinaai: APIKeyManager.getAPIKey('jinaai'),
-  });
-
-  const [showKeys, setShowKeys] = useState({
-    openai: false,
-    perplexity: false,
-    claude: false,
-    jinaai: false,
-  });
-
-  const [keyValidation, setKeyValidation] = useState({
-    openai: null,
-    perplexity: null,
-    claude: null,
-    jinaai: null,
-  });
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'info',
-  });
-
-  const handleToggle = (setting) => {
-    if (setting === 'darkMode') {
-      // Toggle theme mode
-      toggleThemeMode();
-    }
-
-    setSettings((prev) => ({
-      ...prev,
-      [setting]: !prev[setting],
-    }));
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
-  const toggleKeyVisibility = (provider) => {
-    setShowKeys((prev) => ({
-      ...prev,
-      [provider]: !prev[provider],
-    }));
-  };
-
-  const handleApiKeyChange = (provider, value) => {
-    setApiKeys((prev) => ({
-      ...prev,
-      [provider]: value,
-    }));
-  };
-
-  const validateAndSaveApiKey = useCallback(async (provider) => {
-    const key = apiKeys[provider];
-
+  const handleWebhookSubmit = async (e) => {
+    e.preventDefault();
     try {
-      // Validate key format
-      if (!APIKeyValidators.validateKey(provider, key)) {
-        throw new APIKeyError(provider, 'Invalid API key format');
-      }
-
-      // Test API key connectivity
-      const isValid = await APIKeyManager.testAPIKey(provider, key);
-      
-      if (isValid) {
-        // Save key
-        APIKeyManager.storeAPIKey(provider, key);
-        
-        // Update validation state
-        setKeyValidation((prev) => ({
-          ...prev,
-          [provider]: true,
-        }));
-
-        // Show success snackbar
-        setSnackbar({
-          open: true,
-          message: `${provider.toUpperCase()} API key validated successfully!`,
-          severity: 'success',
-        });
+      if (editingWebhook) {
+        await updateWebhook(editingWebhook.id, webhookForm);
       } else {
-        throw new APIKeyError(provider, 'API key connectivity test failed');
+        await addWebhook(webhookForm);
       }
-    } catch (error) {
-      // Handle validation errors
-      setKeyValidation((prev) => ({
-        ...prev,
-        [provider]: false,
-      }));
-
-      // Show error snackbar
       setSnackbar({
         open: true,
-        message: error.message || `Failed to validate ${provider.toUpperCase()} API key`,
-        severity: 'error',
+        message: `Webhook ${editingWebhook ? 'updated' : 'added'} successfully`,
+        severity: 'success'
+      });
+      setWebhookDialog(false);
+      setEditingWebhook(null);
+      resetWebhookForm();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.message,
+        severity: 'error'
       });
     }
-  }, [apiKeys]);
+  };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
+  const handleWebhookTest = async (webhookId) => {
+    const result = await testWebhook(webhookId);
+    setSnackbar({
+      open: true,
+      message: result.success ? 'Webhook tested successfully' : `Test failed: ${result.error}`,
+      severity: result.success ? 'success' : 'error'
+    });
+  };
+
+  const handleWebhookDelete = async (webhookId) => {
+    if (window.confirm('Are you sure you want to delete this webhook?')) {
+      await deleteWebhook(webhookId);
+      setSnackbar({
+        open: true,
+        message: 'Webhook deleted successfully',
+        severity: 'success'
+      });
+    }
+  };
+
+  const resetWebhookForm = () => {
+    setWebhookForm({
+      name: '',
+      url: '',
+      method: 'POST',
+      headers: '{}',
+      body: '{}'
+    });
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        Settings
-      </Typography>
-      
-      {/* General Settings */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>General Settings</Typography>
-        <List>
-          <ListItem>
-            <ListItemIcon>
-              <NotificationsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Email Notifications" />
-            <Switch
-              edge="end"
-              checked={settings.emailNotifications}
-              onChange={() => handleToggle('emailNotifications')}
-            />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemIcon>
-              {mode === 'light' ? <LightModeIcon /> : <DarkModeIcon />}
-            </ListItemIcon>
-            <ListItemText 
-              primary="Dark Mode" 
-              secondary={`Currently in ${mode} mode`} 
-            />
-            <Switch
-              edge="end"
-              checked={settings.darkMode}
-              onChange={() => handleToggle('darkMode')}
-            />
-          </ListItem>
-        </List>
+    <Box sx={{ width: '100%', typography: 'body1' }}>
+      <Paper sx={{ width: '100%', mb: 2 }}>
+        <Tabs value={activeTab} onChange={handleTabChange} aria-label="settings tabs">
+          <Tab label="General" />
+          <Tab label="Webhooks" />
+          <Tab label="API Keys" />
+          <Tab label="Accessibility" />
+        </Tabs>
       </Paper>
 
-      {/* Accessibility Settings */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          <AccessibilityIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Accessibility
-        </Typography>
-        <List>
-          <ListItem>
-            <ListItemIcon>
-              <FontSizeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Font Size" />
-            <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Size</InputLabel>
+      <TabPanel value={activeTab} index={0}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>General Settings</Typography>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Language</InputLabel>
               <Select
-                value={fontSize}
-                label="Size"
-                onChange={(e) => updateAccessibility({ fontSize: e.target.value })}
+                value={preferences.language}
+                onChange={(e) => updatePreferences({ language: e.target.value })}
               >
-                <MenuItem value="small">Small</MenuItem>
-                <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="large">Large</MenuItem>
-                <MenuItem value="xlarge">Extra Large</MenuItem>
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="es">Spanish</MenuItem>
+                <MenuItem value="fr">French</MenuItem>
               </Select>
             </FormControl>
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemIcon>
-              <ContrastIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="High Contrast Mode" 
-              secondary="Improve readability for visually impaired users" 
-            />
-            <Switch
-              edge="end"
-              checked={highContrast}
-              onChange={() => updateAccessibility({ highContrast: !highContrast })}
-            />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemIcon>
-              <ScreenReaderIcon />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Screen Reader Mode" 
-              secondary="Optimize interface for screen readers" 
-            />
-            <Switch
-              edge="end"
-              checked={screenReaderMode}
-              onChange={() => updateAccessibility({ screenReaderMode: !screenReaderMode })}
-            />
-          </ListItem>
-        </List>
-      </Paper>
 
-      {/* API Configuration */}
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>AI API Configuration</Typography>
-        <Grid container spacing={3}>
-          {[
-            { 
-              provider: 'openai', 
-              name: 'OpenAI', 
-              description: 'Configure your OpenAI API key for advanced AI capabilities' 
-            },
-            { 
-              provider: 'perplexity', 
-              name: 'Perplexity', 
-              description: 'Set up Perplexity AI API for intelligent search and insights' 
-            },
-            { 
-              provider: 'claude', 
-              name: 'Claude', 
-              description: 'Integrate Anthropic\'s Claude AI API' 
-            },
-            { 
-              provider: 'jinaai', 
-              name: 'Jina.ai', 
-              description: 'Configure Jina.ai API for multimodal AI capabilities' 
-            }
-          ].map(({ provider, name, description }) => (
-            <Grid item xs={12} md={6} key={provider}>
-              <Card 
-                variant="outlined" 
-                sx={{ 
-                  borderColor: 
-                    keyValidation[provider] === true ? 'success.main' : 
-                    keyValidation[provider] === false ? 'error.main' : 'default'
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Date Format</InputLabel>
+              <Select
+                value={preferences.dateFormat}
+                onChange={(e) => updatePreferences({ dateFormat: e.target.value })}
+              >
+                <MenuItem value="MM/DD/YYYY">MM/DD/YYYY</MenuItem>
+                <MenuItem value="DD/MM/YYYY">DD/MM/YYYY</MenuItem>
+                <MenuItem value="YYYY-MM-DD">YYYY-MM-DD</MenuItem>
+              </Select>
+            </FormControl>
+          </CardContent>
+        </Card>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={1}>
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6">Webhooks</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setEditingWebhook(null);
+                  resetWebhookForm();
+                  setWebhookDialog(true);
                 }}
               >
-                <CardHeader 
-                  title={`${name} API`}
-                  subheader={description}
-                  action={
-                    keyValidation[provider] === true ? (
-                      <CheckIcon color="success" />
-                    ) : keyValidation[provider] === false ? (
-                      <ErrorIcon color="error" />
-                    ) : null
-                  }
-                />
-                <CardContent>
-                  <TextField
-                    fullWidth
-                    label={`${name} API Key`}
-                    type={showKeys[provider] ? 'text' : 'password'}
-                    value={apiKeys[provider]}
-                    onChange={(e) => handleApiKeyChange(provider, e.target.value)}
-                    variant="outlined"
-                    sx={{ mb: 2 }}
-                    InputProps={{
-                      endAdornment: (
-                        <>
-                          <Tooltip title={showKeys[provider] ? 'Hide Key' : 'Show Key'}>
-                            <IconButton 
-                              onClick={() => toggleKeyVisibility(provider)}
-                              edge="end"
-                            >
-                              {showKeys[provider] ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Validate API Key">
-                            <Button 
-                              variant="contained" 
-                              color="primary" 
-                              size="small"
-                              onClick={() => validateAndSaveApiKey(provider)}
-                              sx={{ ml: 1 }}
-                            >
-                              Validate
-                            </Button>
-                          </Tooltip>
-                        </>
-                      )
-                    }}
+                Add Webhook
+              </Button>
+            </Box>
+
+            <List>
+              {webhooks.map((webhook) => (
+                <ListItem key={webhook.id}>
+                  <ListItemText
+                    primary={webhook.name}
+                    secondary={`${webhook.method} ${webhook.url}`}
                   />
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Paper>
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      aria-label="test"
+                      onClick={() => handleWebhookTest(webhook.id)}
+                      sx={{ mr: 1 }}
+                    >
+                      <TestIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="edit"
+                      onClick={() => {
+                        setEditingWebhook(webhook);
+                        setWebhookForm(webhook);
+                        setWebhookDialog(true);
+                      }}
+                      sx={{ mr: 1 }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleWebhookDelete(webhook.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={2}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>API Keys</Typography>
+            {/* Existing API Keys section */}
+          </CardContent>
+        </Card>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={3}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>Accessibility Settings</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button
+                variant="outlined"
+                onClick={toggleHighContrast}
+              >
+                {accessibilitySettings.highContrast ? 'Disable' : 'Enable'} High Contrast
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={toggleLargeText}
+              >
+                {accessibilitySettings.largeText ? 'Disable' : 'Enable'} Large Text
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={toggleScreenReaderOptimized}
+              >
+                {accessibilitySettings.screenReaderOptimized ? 'Disable' : 'Enable'} Screen Reader Optimization
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </TabPanel>
+
+      {/* Webhook Dialog */}
+      <Dialog open={webhookDialog} onClose={() => setWebhookDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingWebhook ? 'Edit Webhook' : 'Add Webhook'}</DialogTitle>
+        <form onSubmit={handleWebhookSubmit}>
+          <DialogContent>
+            <TextField
+              fullWidth
+              label="Name"
+              value={webhookForm.name}
+              onChange={(e) => setWebhookForm({ ...webhookForm, name: e.target.value })}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="URL"
+              value={webhookForm.url}
+              onChange={(e) => setWebhookForm({ ...webhookForm, url: e.target.value })}
+              margin="normal"
+              required
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Method</InputLabel>
+              <Select
+                value={webhookForm.method}
+                onChange={(e) => setWebhookForm({ ...webhookForm, method: e.target.value })}
+              >
+                <MenuItem value="GET">GET</MenuItem>
+                <MenuItem value="POST">POST</MenuItem>
+                <MenuItem value="PUT">PUT</MenuItem>
+                <MenuItem value="DELETE">DELETE</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Headers (JSON)"
+              value={webhookForm.headers}
+              onChange={(e) => setWebhookForm({ ...webhookForm, headers: e.target.value })}
+              margin="normal"
+              multiline
+              rows={4}
+            />
+            <TextField
+              fullWidth
+              label="Body (JSON)"
+              value={webhookForm.body}
+              onChange={(e) => setWebhookForm({ ...webhookForm, body: e.target.value })}
+              margin="normal"
+              multiline
+              rows={4}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setWebhookDialog(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">
+              {editingWebhook ? 'Update' : 'Add'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
 
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert 
-          onClose={handleCloseSnackbar}
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           sx={{ width: '100%' }}
         >
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
   );
-};
-
-export default Settings;
+}

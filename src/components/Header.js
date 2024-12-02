@@ -13,11 +13,11 @@ import {
   Notifications as NotificationsIcon,
   AccountCircle as AccountIcon,
 } from '@mui/icons-material';
-import { useAppTheme } from '../contexts/ThemeContext';
+import { useTheme as useAppTheme } from '../contexts/ThemeContext';
 
 const Header = () => {
-  const theme = useTheme();
-  const { mode, toggleThemeMode } = useAppTheme();
+  const muiTheme = useTheme();
+  const { isDarkMode, toggleTheme } = useAppTheme();
 
   return (
     <AppBar 
@@ -25,8 +25,8 @@ const Header = () => {
       color="default" 
       elevation={1}
       sx={{
-        backgroundColor: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`,
+        backgroundColor: muiTheme.palette.background.paper,
+        borderBottom: `1px solid ${muiTheme.palette.divider}`,
       }}
     >
       <Toolbar>
@@ -41,16 +41,17 @@ const Header = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton
-            onClick={toggleThemeMode}
+            onClick={toggleTheme}
             color="inherit"
-            aria-label={mode === 'dark' ? 'Toggle light mode' : 'Toggle dark mode'}
+            aria-label={isDarkMode ? 'Toggle light mode' : 'Toggle dark mode'}
           >
-            {mode === 'dark' ? <LightIcon /> : <DarkIcon />}
+            {isDarkMode ? <LightIcon /> : <DarkIcon />}
           </IconButton>
 
           <IconButton
             color="inherit"
             aria-label="Show notifications"
+            sx={{ ml: 1 }}
           >
             <NotificationsIcon />
           </IconButton>
@@ -58,6 +59,7 @@ const Header = () => {
           <IconButton
             color="inherit"
             aria-label="Account settings"
+            sx={{ ml: 1 }}
           >
             <AccountIcon />
           </IconButton>

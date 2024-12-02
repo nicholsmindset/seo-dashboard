@@ -1,83 +1,52 @@
-import React, { createContext, useState, useContext, useMemo } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme, darkTheme } from '../theme';
 
 // Create Theme Context
-export const ThemeContext = createContext({
-  mode: 'light',
-  toggleThemeMode: () => {},
-});
+const ThemeContext = createContext();
+
+// Custom hook for theme context
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  
+  return context;
+};
 
 // Theme Provider Component
 export const AppThemeProvider = ({ children }) => {
-  const [mode, setMode] = useState('light');
-
-  // Theme configuration
-  const theme = useMemo(() => 
-    createTheme({
-      palette: {
-        mode: mode,
-        primary: {
-          main: mode === 'light' ? '#1976d2' : '#90caf9',
-        },
-        background: {
-          default: mode === 'light' ? '#f4f6f8' : '#121212',
-          paper: mode === 'light' ? '#ffffff' : '#1d1d1d',
-        },
-        text: {
-          primary: mode === 'light' ? '#000' : '#fff',
-        }
-      },
-      typography: {
-        fontFamily: 'Roboto, Arial, sans-serif',
-      },
-      components: {
-        MuiDrawer: {
-          styleOverrides: {
-            paper: {
-              backgroundColor: mode === 'light' ? '#ffffff' : '#1d1d1d',
-              color: mode === 'light' ? '#000' : '#fff',
-            }
-          }
-        },
-        MuiCard: {
-          styleOverrides: {
-            root: {
-              backgroundColor: mode === 'light' ? '#ffffff' : '#1d1d1d',
-            }
-          }
-        }
-      }
-    }), 
-    [mode]
-  );
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   // Toggle theme mode
-  const toggleThemeMode = () => {
-    setMode(prevMode => prevMode === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = useCallback(() => {
+    setIsDarkMode(prev => {
+      const newValue = !prev;
+      localStorage.setItem('darkMode', JSON.stringify(newValue));
+      return newValue;
+    });
+  }, []);
+
+  // Get current theme
+  const currentTheme = isDarkMode ? darkTheme : lightTheme;
 
   // Context value
   const contextValue = {
-    mode,
-    toggleThemeMode
+    isDarkMode,
+    toggleTheme,
+    theme: currentTheme
   };
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={currentTheme}>
         {children}
       </ThemeProvider>
     </ThemeContext.Provider>
   );
-};
-
-// Custom hook for theme context
-export const useAppTheme = () => {
-  const context = useContext(ThemeContext);
-  
-  if (!context) {
-    throw new Error('useAppTheme must be used within an AppThemeProvider');
-  }
-  
-  return context;
 };

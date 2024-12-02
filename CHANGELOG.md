@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.9.0] - 2024-02-14
+
+### Added
+- Jina AI Integration
+  - Content Analysis Service for competitor analysis and content gaps
+  - Content Optimization Service with advanced analysis features
+  - Featured snippet optimization capabilities
+  - Semantic similarity analysis
+  - Content structure analysis
+  - Content freshness verification
+
+### Changed
+- Updated context providers to use Firebase for data persistence
+- Improved authentication flow and user management
+- Enhanced theme management with light/dark mode
+- Restructured navigation with new content analysis features
+
+### Security
+- Added secure API key management
+- Enhanced Firebase authentication persistence
+- Implemented context-based access control
+
+## [0.8.2] - 2024-02-13
+
+### Fixed
+- Context provider dependency issues
+- Authentication state management
+- Theme switching implementation
+
+### Updated
+- MUI dependencies to latest versions
+- Firebase configuration
+- Provider nesting and initialization
+
 ## [0.7.0] - 2024-01-15
 ### Added
 - Comprehensive Error Handling Utility
