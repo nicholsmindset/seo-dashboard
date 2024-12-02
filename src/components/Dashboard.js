@@ -20,8 +20,9 @@ import {
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
 import { ResponsiveLine } from '@nivo/line';
-import ContentAnalysis from './ContentAnalysis';
-import ContentOptimization from './ContentOptimization';
+import ContentAnalysis from '../pages/ContentAnalysis';
+import ContentOptimization from '../pages/ContentOptimization';
+import DashboardHome from '../pages/Dashboard';
 
 const mockData = [
   {
@@ -79,7 +80,10 @@ const contentProjects = [
 const Dashboard = () => {
   return (
     <Routes>
-      <Route path="/" element={
+      <Route path="/" element={<DashboardHome />} />
+      <Route path="/content-analysis" element={<ContentAnalysis />} />
+      <Route path="/content-optimization" element={<ContentOptimization />} />
+      <Route path="/dashboard" element={
         <Container maxWidth="lg">
           <Box sx={{ mb: 4 }}>
             <Typography variant="h4" sx={{ mb: 4 }}>
@@ -308,8 +312,6 @@ const Dashboard = () => {
           </Box>
         </Container>
       } />
-      <Route path="/content-analysis" element={<ContentAnalysis />} />
-      <Route path="/content-optimization" element={<ContentOptimization />} />
     </Routes>
   );
 };

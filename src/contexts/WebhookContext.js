@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { database } from '../config/firebase';
 import { ref, set, onValue, remove } from 'firebase/database';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '../utils/generateId';
 import { useAuth } from './AuthContext';
 
 const WebhookContext = createContext();
@@ -41,7 +41,7 @@ export const WebhookProvider = ({ children }) => {
   const addWebhook = useCallback(async (webhookData) => {
     if (!currentUser?.uid) return;
 
-    const webhookId = uuidv4();
+    const webhookId = generateId();
     const newWebhook = {
       ...webhookData,
       createdAt: new Date().toISOString(),
