@@ -1,9 +1,9 @@
 {
   "name": "seo-content-dashboard",
   "version": "0.9.0",
-  "description": "SEO Content Management Dashboard with Jina AI Integration",
+  "description": "",
   "private": true,
-  "homepage": "https://nicholsmindset.github.io/dashboard",
+  "homepage": "https://nicholsmindset.github.io/seo-dashboard",
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -34,10 +34,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "version:patch": "npm version patch && git push origin main --tags",
-    "version:minor": "npm version minor && git push origin main --tags",
-    "version:major": "npm version major && git push origin main --tags"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -59,7 +56,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "gh-pages": "^6.1.1",
+    "dotenv": "^16.4.5",
+    "gh-pages": "^6.2.0",
     "jest-canvas-mock": "^2.5.2",
     "msw": "^2.1.5"
   },

@@ -1,103 +1,100 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
+import { theme } from './theme';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { UserProvider } from './contexts/UserContext';
-import { WebhookProvider } from './contexts/WebhookContext';
-import { APIKeyProvider } from './contexts/APIKeyContext';
-import { AppThemeProvider } from './contexts/ThemeContext';
-
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import ProfilePage from './pages/ProfilePage';
-import EmailVerification from './pages/EmailVerification';
-import PasswordReset from './pages/PasswordReset';
-import Onboarding from './pages/Onboarding';
-import Dashboard from './components/Dashboard';
 import Layout from './components/Layout';
 
-// Protected Route wrapper
-const ProtectedRoute = ({ children }) => {
+// Pages
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import Settings from './pages/Settings';
+import ContentAnalysis from './pages/ContentAnalysis';
+import ContentOptimization from './pages/ContentOptimization';
+import SEOTool from './pages/SEOTool';
+import ContentAnalytics from './pages/ContentAnalytics';
+import Preview from './pages/Preview';
+
+// Route Guard Component
+const PrivateRoute = ({ children }) => {
   const { currentUser } = useAuth();
-  if (!currentUser) {
-    return <Navigate to="/login" />;
-  }
-
-  // Check if email is verified when required
-  if (!currentUser.emailVerified && window.location.pathname !== '/verify-email') {
-    return <Navigate to="/verify-email" />;
-  }
-
-  // Check if onboarding is completed
-  const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-  if (!onboardingCompleted && window.location.pathname !== '/onboarding') {
-    return <Navigate to="/onboarding" />;
-  }
-
-  return children;
-};
-
-// Public Route wrapper (redirects to dashboard if already logged in)
-const PublicRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  return !currentUser ? children : <Navigate to="/dashboard" />;
+  return currentUser ? children : <Navigate to="/login" />;
 };
 
 function App() {
   return (
-    <Router>
-      <AppThemeProvider>
-        <CssBaseline />
-        <AuthProvider>
-          <UserProvider>
-            <WebhookProvider>
-              <APIKeyProvider>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
-                  <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-                  <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
-                  <Route path="/reset-password" element={<PublicRoute><PasswordReset /></PublicRoute>} />
-                  
-                  {/* Email verification */}
-                  <Route path="/verify-email" element={<EmailVerification />} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router basename="/seo-dashboard">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/preview" element={<Preview />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                  {/* Protected routes */}
-                  <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-                  <Route path="/dashboard/*" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Dashboard />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
-                  
-                  {/* Fallback route */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </APIKeyProvider>
-            </WebhookProvider>
-          </UserProvider>
-        </AuthProvider>
-      </AppThemeProvider>
-      <ToastContainer 
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-    </Router>
+            {/* Protected Routes */}
+            <Route element={<Layout />}>
+              <Route 
+                path="/" 
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <PrivateRoute>
+                    <Settings />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/content-analysis" 
+                element={
+                  <PrivateRoute>
+                    <ContentAnalysis />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/content-optimization" 
+                element={
+                  <PrivateRoute>
+                    <ContentOptimization />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/seo-tool" 
+                element={
+                  <PrivateRoute>
+                    <SEOTool />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/content-analytics" 
+                element={
+                  <PrivateRoute>
+                    <ContentAnalytics />
+                  </PrivateRoute>
+                } 
+              />
+            </Route>
+
+            {/* Redirect unmatched routes to preview */}
+            <Route path="*" element={<Navigate to="/preview" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

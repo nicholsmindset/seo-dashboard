@@ -22,15 +22,20 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
+      if (user && !isPreviewMode) {
+        setCurrentUser(user);
+      } else if (!isPreviewMode) {
+        setCurrentUser(null);
+      }
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [isPreviewMode]);
 
   const signup = async (email, password, displayName) => {
     try {
@@ -108,6 +113,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const enablePreviewMode = () => {
+    setIsPreviewMode(true);
+    setCurrentUser({
+      email: 'preview@seodashboard.com',
+      isPreview: true,
+      role: 'preview'
+    });
+  };
+
+  const disablePreviewMode = () => {
+    setIsPreviewMode(false);
+    setCurrentUser(null);
+  };
+
   const value = {
     currentUser,
     error,
@@ -119,6 +138,9 @@ export function AuthProvider({ children }) {
     updateUserProfile,
     socialLogin,
     verifyEmail,
+    enablePreviewMode,
+    disablePreviewMode,
+    isPreviewMode,
     setError
   };
 
